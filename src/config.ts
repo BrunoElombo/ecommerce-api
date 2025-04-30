@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
@@ -22,3 +23,15 @@ export const BILLING_API = process.env.BILLING_API;
 export const googleClient = new OAuth2Client(
     GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
 )
+
+
+
+export const transporter = nodemailer.createTransport({
+    host: process.env.HOST,
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.HOST_USER,
+      pass: process.env.HOST_PASSWORD,
+    },
+});

@@ -17,12 +17,21 @@ model User {
   phone       String?   @unique
   role        Role      @default(CUSTOMER)
   verified    DateTime?
-  refreshToken String?
+  refreshToken String?  @unique
   addresses   Address[]
   reviews     Review[]
   orders      Order[]
   wishlist    Wishlist[]
   cartItem    CartItem[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isActive    Boolean   @default(true)
+}
+
+model Blacklist{
+  id    String    @id   @default(uuid())
+  token String
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   isActive    Boolean   @default(true)
