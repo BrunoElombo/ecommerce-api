@@ -7,7 +7,7 @@ import { body, validationResult } from "express-validator";
 /**
  * Registration verifiaction
  */
-export const registration=[
+export const registrationValidation=[
     body("email").notEmpty().isEmail().withMessage("Invalid email"),
     body("password").notEmpty().withMessage("Password is required"),
     body("username").notEmpty().isAlphanumeric().withMessage("Username is required"),

@@ -1,7 +1,7 @@
 {
-  "name": "users",
+  "name": "ecommerce-api",
   "version": "1.0.0",
-  "description": "User api",
+  "description": "Ecommerce api",
   "main": "api/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
@@ -11,9 +11,8 @@
     "migrate": "npx prisma migrate dev"
   },
   "keywords": [
-    "gateway",
     "api",
-    "blox"
+    "Ecommerce"
   ],
   "author": "brunoelombo",
   "license": "ISC",

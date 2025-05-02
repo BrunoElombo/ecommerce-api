@@ -2,7 +2,8 @@ import { apiResponse } from "../utils/apiResponse";
 import { $Enums, PrismaClient } from "@prisma/client";
 import { comparePassword, hashPassword } from "../utils/password";
 import { generateToken, verifyToken } from "../utils/jwt";
-import { ADDRESS, prisma } from "../config";
+import { FRONT_ADDRESS, prisma } from "../config";
+import { hash } from "crypto";
 const userClient = new PrismaClient().user
 
 
@@ -89,29 +90,44 @@ export const RegisterUserService = async(body:UserRegistration)=>{
         let {username, email} = body
         // Check if username already exist 
         let userExist = await userClient.findUnique({
-            where:{isActive:true, username}
+            where:{username}
         });
+
         if(userExist) return apiResponse(true, [{message:'username already exist', field:'username'}]);
 
         // Check if email exist
         let emailExist = await userClient.findUnique({
-            where:{isActive:true, email}
+            where:{email}
         });
 
         if(emailExist) return apiResponse(true, [{message:'email already exist', field:'email'}]);
 
-        // Create a new user
-        let newUser = await userClient.create({
-            data:{isActive:false, ...body}
+        // desctruction password
+        let {password, ...rest} = body
+        let userPassword = await hashPassword(password);
+
+        let user = await userClient.create({
+            data:{
+                password: userPassword,
+                ...rest
+            }
         });
 
-        let { password, refreshToken, isActive, createdAt, updatedAt, verified, ...sanitizedUser } = newUser
+        let sanitizedUser = {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+            role:   user.role
+          }
+        
 
         // Verify token
-        let verifiactionToken = generateToken(sanitizedUser, '5m');
+        let verificationToken = generateToken(sanitizedUser, '5m');
 
-        // Send mail to user
-        return apiResponse(false,undefined, verifiactionToken);
+        return apiResponse(false,undefined, verificationToken);
     } catch (error) {
         console.log(error);
         return apiResponse(true, [{message:`${error}`, field:'server'}])
@@ -139,6 +155,7 @@ export const verifyEmailService = async (token:string) =>{
         
     } catch (error) {
         console.log(error);
+        return apiResponse(true, [{message:`${error}`, field:'server'}]);
     }
 }
 
@@ -159,7 +176,7 @@ export const forgotPasswordService = async(email:string)=>{
         // return link
         let token:any = generateToken(user, `${DURATION}m`);
 
-        let link = `${ADDRESS}?token=${token}`;
+        let link = `${FRONT_ADDRESS}?token=${token}`;
 
         return apiResponse(false, undefined, {
             message:`This reset password link is available for ${5} minutes`,

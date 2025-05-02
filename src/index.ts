@@ -10,6 +10,7 @@ import morgan from 'morgan';
 
 // Routes imports
 import userRoutes from './routes/users.routes';
+import authRoutes from './routes/auth.routes'
 
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 
 export default app;

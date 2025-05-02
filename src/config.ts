@@ -15,7 +15,7 @@ export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "JWT-SEC
 export const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "JWT-SECRET-CODE";
 
 export const USERS_API = process.env.USERS_API;
-export const ADDRESS = process.env.ADDRESS;
+export const FRONT_ADDRESS = process.env.FRONT_ADDRESS;
 export const ENTERPRISE_API = process.env.ENTERPRISE_API;
 export const BUDGET_API = process.env.BUDGET_API;
 export const BILLING_API = process.env.BILLING_API;
@@ -25,13 +25,15 @@ export const googleClient = new OAuth2Client(
 )
 
 
-
+export const HOST = process.env.HOST;
+export const HOST_USER = process.env.HOST_USER;
+export const HOST_PASSWORD = process.env.HOST_PASSWORD;
 export const transporter = nodemailer.createTransport({
-    host: process.env.HOST,
+    host: HOST,
     port: 587,
     secure: false,
     auth: {
-      user: process.env.HOST_USER,
-      pass: process.env.HOST_PASSWORD,
+      user: HOST_USER,
+      pass: HOST_PASSWORD,
     },
 });
