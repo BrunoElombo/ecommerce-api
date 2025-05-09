@@ -28,7 +28,7 @@ export const registrationValidation=[
  * Login verfication
  */
 export const loginValidation=[
-    body("username").notEmpty().withMessage("username or email required"),
+    body("credential").notEmpty().withMessage("username or email required"),
     body("password").notEmpty().withMessage("password is required"),
     (req:Request, res:Response, next:NextFunction)=>{
         const errors = validationResult(req);

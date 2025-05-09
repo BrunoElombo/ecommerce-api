@@ -9,6 +9,6 @@ routes.post('/login', loginValidation, loginUserController as RequestHandler);
 routes.post('/logout', logoutController as RequestHandler);
 routes.post('/forgot-password', forgotPasswordValidation, forgotPasswordController as RequestHandler);
 routes.post('/reset-password', newPasswordController as RequestHandler);
-routes.get('/refresh-token', refreshTokenController as RequestHandler);
+routes.post('/refresh-token', refreshTokenController as RequestHandler);
 
 export default routes;

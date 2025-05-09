@@ -6,8 +6,8 @@ import { FRONT_ADDRESS, HOST_USER, transporter } from "../config";
 
 export const loginUserController = async(req:Request, res:Response) =>{
     try {
-        let {username, password} = req.body
-        let login = await loginUserService(username, password);
+        let {credential, password} = req.body
+        let login = await loginUserService(credential, password);
         if(login.error){
             res
             .status(HTTP_STATUS.BAD_REQUEST.statusCode)
@@ -51,16 +51,16 @@ export const registerUserController = async(req:Request, res:Response) =>{
 
         let{verificationToken} = token?.data;
 
-        let sendMail = await transporter.sendMail(
-            {
-                from: `${HOST_USER}`,
-                to: email,
-                subject: "Verify user account",
-                text: `This verification token is valid for 5 minutes \n link: ${FRONT_ADDRESS}/?token=${verificationToken}`,
-                // html: "<b>Hello world?</b>",
-            }
-        )
-        if(!sendMail) return res.status(HTTP_STATUS.BAD_REQUEST.statusCode).send(apiResponse(true, [{message:'failed to send verification mail', field:'email'}]));
+        // let sendMail = await transporter.sendMail(
+        //     {
+        //         from: `${HOST_USER}`,
+        //         to: email,
+        //         subject: "Verify user account",
+        //         text: `This verification token is valid for 5 minutes \n link: ${FRONT_ADDRESS}/?token=${verificationToken}`,
+        //         // html: "<b>Hello world?</b>",
+        //     }
+        // )
+        // if(!sendMail) return res.status(HTTP_STATUS.BAD_REQUEST.statusCode).send(apiResponse(true, [{message:'failed to send verification mail', field:'email'}]));
 
         res
         .status(HTTP_STATUS.CREATED.statusCode)
@@ -128,19 +128,28 @@ export const newPasswordController =async (req:Request, res:Response) =>{
 
 export const refreshTokenController =async (req:Request, res:Response) =>{
     try {
-        let token = req.query.token as string;
+        let {refresh} = req.cookies;
         
-        if(!token) {
+        if(!refresh) {
             res
             .status(HTTP_STATUS.BAD_REQUEST.statusCode)
             .send(apiResponse(true, [{message:'token not found', field:'token'}]));
             return;
         }
 
-        let user = await refreshTokenService(token);
+        let user = await refreshTokenService(refresh);
+        if(user.error){
+            res
+            .status(HTTP_STATUS.BAD_REQUEST.statusCode)
+            .send(user)
+            return
+        }
+        let access = user.data.access
+        let newRefresh = user.data.refresh
+        res.cookie('refresh', newRefresh, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000, secure:true, sameSite:'none' });
         res
         .status(user?.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.OK.statusCode)
-        .send(user);
+        .send(apiResponse(false, undefined, access));
         return;
     } catch (error) {
         console.log(error);

@@ -19,21 +19,23 @@ interface UserRegistration{
 
 /**
  * Return access and refresh token if login successful
- * @param username 
+ * @param credentials 
  * @param userPassword 
  * @returns 
  */
-export const loginUserService = async(username:string, userPassword:string)=>{
+export const loginUserService = async(credential:string, userPassword:string)=>{
     try {
         // check if username or email exist
-        let user = await userClient.findUnique({
-            where:{
-                isActive:true,
-                username
+        let user = await userClient.findFirst({
+            where: {
+                OR: [
+                    { username: credential },
+                    { email: credential }
+                ]
             }
-        })
+        });
 
-        if(!user) return (apiResponse(true, [{message:'user does nnot exist', field:'username'}]))
+        if(!user) return (apiResponse(true, [{message:'user does not exist', field:'username'}]))
         // Check if password match
 
         let passwordMatch = await comparePassword(userPassword, user.password)
@@ -46,6 +48,16 @@ export const loginUserService = async(username:string, userPassword:string)=>{
         let access = generateToken(rest, '5m');
         let refresh = generateToken(rest, '15m');
 
+
+        let token = await userClient.update({
+            where:{
+                id: user.id
+            },
+            data:{
+                refreshToken: refresh
+            }
+        });
+        console.log(refresh);
         return apiResponse(false, undefined, {access, refresh})
         
 
@@ -60,18 +72,26 @@ export const loginUserService = async(username:string, userPassword:string)=>{
 
 export const logoutService = async (token:string) =>{
     try {
+        console.log(token)
+        let tokenIsValid:any = verifyToken(token)
+        if(!tokenIsValid) return apiResponse(true, [{message:'invalid or expired token', field:'token'}]);
+
+        // Blacklist the token
+        const blackList  = await prisma.blacklist.create({
+            data:{
+                token:token
+            }
+        });
+
         let user = await userClient.update({
-            where:{refreshToken:token},
+            where:{id:tokenIsValid.id},
             data:{
                 refreshToken:null
             }
         });
 
-        prisma.blacklist.create({
-            data:{
-                token
-            }
-        });
+
+        console.log(blackList)
         return apiResponse(false, undefined,{})
     } catch (error) {
         console.log(error);
