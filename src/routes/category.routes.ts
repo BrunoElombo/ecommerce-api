@@ -1,15 +1,13 @@
-import { Router, RequestHandler } from "express";
-import { createCategoryController, deleteCategoryController, getAllCategoriesController, updateCategoryController } from "../controllers/category.controller";
-import { createCategoryValidation, updateCategoryValidation } from '../validations/category.validations';
+import { CreateCategoryValidation } from './../validations/category.validation';
+import { Router } from "express";
+import { CreateCategoryController, DeleteCategoryController, GetAllCategoriesController, GetCategoryByIdController, UpdateCategoryController } from "../controllers/category.controller";
 
+const route = Router();
 
-const routes = Router();
+route.get('/', GetAllCategoriesController)
+route.post('/', CreateCategoryValidation, CreateCategoryController)
+route.get('/:id', GetCategoryByIdController)
+route.patch('/:id', UpdateCategoryController)
+route.delete('/:id', DeleteCategoryController)
 
-
-routes.get("/", getAllCategoriesController as RequestHandler);
-routes.post("/", createCategoryValidation, createCategoryController as RequestHandler);
-routes.patch("/:id", updateCategoryValidation, updateCategoryController as RequestHandler);
-routes.delete("/:id", deleteCategoryController as RequestHandler);
-
-
-export default routes;
+export default route;

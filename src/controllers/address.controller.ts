@@ -1,92 +1,85 @@
 import { Request, Response } from "express";
-import { apiResponse } from "../utils/apiResponse";
-import { createAddressService, deleteOwnAddressService, getOwnAddressService, updateOwnAddressService } from "../services/address.services";
 import HTTP_STATUS from "../utils/http.utils";
+import { apiResponse } from "../utils/errors.utils";
+import { CreateAddressService, DeleteAddressService, GetAddressByIdService, GetAllAddressesService, UpdateAddressService } from "../services/address.service";
 
 
-/**
- * create own address constroller
- * @param req 
- * @param res 
- * @returns 
- */
-export const createAddressController = async (req:Request, res:Response) =>{
+
+export const CreateAddressController = async (req:Request, res:Response) =>{
     try {
-        let address = await createAddressService(req.body);
-        res
-        .status(address.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.CREATED.statusCode)
-        .send(address);
-        return;
-    } catch (error) {
-        console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
-    }
-}
-
-/**
- * Get own address controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const getAllOwnAddressController = async (req:Request, res:Response) =>{
-    try {
-        let {authorization} = req.headers;
-        let token = authorization?.split(" ")[1];
-        let address = await getOwnAddressService(token);
-        res
-        .status(address.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
-        .send(address);
-        return;
-    } catch (error) {
-        console.log(error);
-        return apiResponse(true, [{message:``, field:''}]);
-    }
-}
-
-/**
- * Update own addresscontroller
- * @param req 
- * @param res 
- * @returns 
- */
-export const updateOwnAddressController = async (req:Request, res:Response) =>{
-    try {
-        let {id} = req.params;
-        if(!id) return apiResponse(true, [{message:'id is required in params', field:"id"}]);
         let {body} = req;
-        let {authorization} = req.headers;
-        let token = authorization?.split(" ")[1];
-        let address = await updateOwnAddressService(token, id, body);
+        let address = await CreateAddressService(body);
         res
-        .status(address.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
+        .status(address?.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.CREATED.statusCode)
         .send(address);
-        return;
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }
 
-/**
- * Delete own address controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const deleteOwnAddressController = async (req:Request, res:Response) =>{
+
+export const GetAllAddressesController = async (req:Request, res:Response) =>{
+    try {
+        let addresses = await GetAllAddressesService();
+        res
+        .status(addresses.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.OK.statusCode)
+        .send(addresses);
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+
+export const GetAddressByIdController = async (req:Request, res:Response) =>{
     try {
         let {id} = req.params;
-        if(!id) return apiResponse(true, [{message:'id is required in params', field:"id"}]);
-        let {authorization} = req.headers;
-        let token = authorization?.split(" ")[1];
-        let address = await deleteOwnAddressService(token, id);
+        let address = await GetAddressByIdService(id);
         res
         .status(address.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
         .send(address);
-        return;
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+
+export const UpdateAddressController = async (req:Request, res:Response) =>{
+    try {
+        let {params, body} = req;
+        let {id} = params
+        let address = await UpdateAddressService(id, body);
+        res
+        .status(address.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.OK.statusCode)
+        .send(address)
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+
+export const DeleteAddressController = async (req:Request, res:Response) => {
+    try {
+        let {id} = req.params;
+        let address = await DeleteAddressService(id);
+        res
+        .status(address.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.NO_CONTENT.statusCode)
+        .send(address);
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }

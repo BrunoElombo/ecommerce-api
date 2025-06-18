@@ -1,86 +1,85 @@
 import { Request, Response } from "express";
-import { apiResponse } from "../utils/apiResponse";
-import { createCategoryService, deleteCategoryService, getAllCategoriesService, updateCategoryService } from "../services/category.services";
 import HTTP_STATUS from "../utils/http.utils";
+import { apiResponse } from "../utils/errors.utils";
+import { CreateCategoryService, DeleteCategoryService, GetAllCategoriesService, GetCategoryByIdService, UpdateCategoryService } from "../services/category.service";
 
 
-/**
- * create category controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const createCategoryController = async (req:Request, res:Response) =>{
+
+export const CreateCategoryController = async (req:Request, res:Response) =>{
     try {
-        let category = await createCategoryService(req.body);
+        let {body} = req;
+        let category = await CreateCategoryService(body);
         res
         .status(category.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.CREATED.statusCode)
         .send(category);
-        return;
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }
 
-/**
- * Get categories controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const getAllCategoriesController = async (req:Request, res:Response) =>{
+
+export const GetAllCategoriesController = async (req:Request, res:Response) =>{
     try {
-        let categories = await getAllCategoriesService();
+        let categories = await GetAllCategoriesService();
         res
-        .status(categories.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
+        .status(categories.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.OK.statusCode)
         .send(categories);
-        return;
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:``, field:''}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }
 
-/**
- * Update category controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const updateCategoryController = async (req:Request, res:Response) =>{
+
+export const GetCategoryByIdController = async (req:Request, res:Response) =>{
     try {
         let {id} = req.params;
-        if(!id) return apiResponse(true, [{message:'id is required in params', field:"id"}]);
-        let {body} = req;
-        let category = await updateCategoryService(id, body);
+        let category = await GetCategoryByIdService(id);
         res
         .status(category.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
         .send(category);
-        return;
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }
 
-/**
- * Delete category controller
- * @param req 
- * @param res 
- * @returns 
- */
-export const deleteCategoryController = async (req:Request, res:Response) =>{
+
+export const UpdateCategoryController = async (req:Request, res:Response) =>{
     try {
-        let {id} = req.params;
-        if(!id) return apiResponse(true, [{message:'id is required in params', field:"id"}]);
-        let category = await deleteCategoryService(id);
+        let {params, body} = req;
+        let {id} = params
+        let category = await UpdateCategoryService(id, body);
         res
-        .status(category.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.OK.statusCode)
-        .send(category);
-        return;
+        .status(category.error ? HTTP_STATUS.BAD_REQUEST.statusCode : HTTP_STATUS.OK.statusCode)
+        .send(category)
     } catch (error) {
         console.log(error);
-        return apiResponse(true, [{message:`${error}`, field:'server'}]);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+
+export const DeleteCategoryController = async (req:Request, res:Response) => {
+    try {
+        let {id} = req.params;
+        let category = await DeleteCategoryService(id);
+        res
+        .status(category.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.NO_CONTENT.statusCode)
+        .send(category);
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
     }
 }

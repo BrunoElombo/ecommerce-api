@@ -4,12 +4,12 @@ import HTTP_STATUS from "../utils/http.utils";
 
 
 /**
- * Create product validation
+ * Create review validation
  */
-export const createProductValidation = [
-    body("name").notEmpty().withMessage("name is required"),
-    body("price").notEmpty().isNumeric().withMessage("price is required"),
-    body("slug").notEmpty().optional().trim().withMessage("slug should not be empty"),
+export const CreateReviewValidation = [
+    body("userId").notEmpty().withMessage("userId is required"),
+    body("productId").notEmpty().withMessage("productId is required"),
+    body("content").notEmpty().withMessage("content is required"),
     (req:Request, res:Response, next:NextFunction) =>{
         const error = validationResult(req);
         if(!error.isEmpty()){

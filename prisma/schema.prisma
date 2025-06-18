@@ -8,180 +8,210 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  username    String    @unique
-  password    String
-  firstName   String
-  lastName    String
-  phone       String?   @unique
-  role        Role      @default(CUSTOMER)
-  verified    DateTime?
-  refreshToken String?  @unique
-  addresses   Address[]
-  reviews     Review[]
-  orders      Order[]
-  wishlist    Wishlist[]
-  cartItem    CartItem[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-model Blacklist{
-  id    String    @id   @default(uuid())
-  token String
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-enum Role {
-  CUSTOMER
-  ADMIN
+  id            String       @id @default(uuid())
+  email         String       @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  username      String       @unique
+  phone         String?
+  verified      DateTime?
+  verifiedToken String?
+  appleId       String?
+  profileImage  String?
+  gender        Gender      @default(NOT_ATTRIBUTED)
+  role          UserRole    @default(CUSTOMER)
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  ratings       Rating[]
+  payments      Payment[]
+  cartItems     CartItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Address {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  line1     String
-  line2     String?
-  city      String
-  state     String
-  postalCode String
-  country   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-model Category {
-  id          String    @id @default(uuid())
-  name        String
-  slug        String    @unique
-  description String?
-  products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  street      String
+  city        String
+  state       String
+  postalCode  String
+  line1       String
+  line2       String?
+  country     String
+  countryCode String
+  isDefault   Boolean  @default(false)
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Product {
-  id            String         @id @default(uuid())
-  title         String
-  slug          String?        @unique
-  description   String?
-  price         Decimal?       @db.Decimal(10, 2)
-  stock         Int?           @default(0)
-  categoryId    String
-  category      Category       @relation(fields: [categoryId], references: [id])
-  variations    ProductVariation[]
-  reviews       Review[]
-  wishLists     Wishlist[]
-  cartItems     CartItem[]
-  orderItem     OrderItem[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-model ProductVariation {
-  id          String   @id @default(uuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  variation   VariationType
-  value       String
-  additionalPrice Decimal? @db.Decimal(10, 2)
-  isActive    Boolean   @default(true)
-}
-
-model Review {
-  id        String   @id @default(uuid())
-  rating    Int
-  comment   String?
-  userId    String
-  productId String
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-  createdAt DateTime @default(now())
-  isActive    Boolean   @default(true)
-}
-
-model CartItem {
-  id          String    @id @default(uuid())
-  userId      String
-  productId   String
-  quantity    Int
-  user        User      @relation(fields: [userId], references: [id])
-  product     Product   @relation(fields: [productId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
-}
-
-model Wishlist {
-  id        String   @id @default(uuid())
-  userId    String
-  productId String
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-  isActive    Boolean   @default(true)
+  id      String      @id     @default(uuid())
+  name    String      @unique
+  slug    String      @unique
+  price   Float
+  image   String?
+  salePrice   Float?
+  quantity    Int            @default(0)
+  description String?        @db.LongText
+  shortDescription      String?
+  productCategory       ProductCategory[]
+  orders      Order[]
+  images      Image[]
+  ratings     Rating[]
+  reviews     Review[]
+  cartItems   CartItem[]
+  variations  ProductVariation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Order {
-  id          String     @id @default(uuid())
-  userId      String
-  user        User       @relation(fields: [userId], references: [id])
-  totalAmount Decimal    @db.Decimal(10, 2)
-  status      OrderStatus @default(PENDING)
-  address     String
-  orderItems  OrderItem[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  isActive    Boolean   @default(true)
+  id      String      @id       @default(uuid())
+  code    String      
+  products            Product[]
+  userId  String
+  status  OrderStatus @default(PENDING)
+  addressId           String
+  address Address     @relation(references: [id], fields: [addressId], onDelete: Cascade)
+  user    User        @relation(references: [id], fields: [userId], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Payment {
+  id                String      @id     @default(uuid())
+  paymenMethod      PaymentMethod
+  status            PaymentStatus     @default(PENDING)
+  userId            String
+  user              User      @relation(references: [id], fields: [userId])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProductVariation {
+  id            String      @id       @default(uuid())
+  name          String
+  value         String
+  type          Variation
+  products      Product[]
+  carts         CartItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CartItem {
+  id        String      @id     @default(uuid())
+  sku       String
+  productId     String
+  product       Product         @relation(references: [id], fields: [productId])
+  variationId   String
+  variation     ProductVariation      @relation(references: [id], fields: [variationId])
+  userId   String
+  user     User      @relation(references: [id], fields: [userId])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProductCategory {
+  id      String        @id       @default(uuid())
+  productId     String
+  product       Product     @relation(references: [id], fields: [productId], onDelete: Cascade)
+  categoryId    String
+  category      Category    @relation(references: [id], fields: [categoryId], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id      String      @id     @default(uuid())
+  name    String
+  slug    String
+  productCategory       ProductCategory[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Image {
+  id      String      @id       @default(uuid())
+  link    String
+  name    String
+  productId     String
+  product       Product     @relation(references: [id], fields: [productId], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id      String      @id     @default(uuid())
+  content String      @db.LongText
+  userId  String
+  user    User        @relation(references: [id], fields: [userId], onDelete: Cascade)
+  productId           String
+  product             Product       @relation(references: [id], fields: [productId], onDelete: Cascade)
+  status      Review_Status         @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Rating {
+  id      String      @id     @default(uuid())
+  rate    Float       @default(1.0)
+  userId  String
+  user    User        @relation(references: [id], fields: [userId], onDelete: Cascade)
+  productId           String
+  product             Product       @relation(references: [id], fields: [productId], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
 }
 
 enum OrderStatus {
   PENDING
   PROCESSING
-  SHIPPED
   COMPLETED
   CANCELLED
+  REFUNDED
+  FAILED
 }
 
-model OrderItem {
-  id          String    @id @default(uuid())
-  orderId     String
-  productId   String
-  quantity    Int
-  price       Decimal    @db.Decimal(10, 2)
-  order       Order      @relation(fields: [orderId], references: [id])
-  product     Product    @relation(fields: [productId], references: [id])
-  isActive    Boolean   @default(true)
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
 }
 
-model Coupon {
-  id             String    @id @default(uuid())
-  code           String    @unique
-  discountType   DiscountType
-  discountValue  Decimal    @db.Decimal(10,2)
-  expiresAt      DateTime
-  usageLimit     Int?
-  usedCount      Int        @default(0)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  isActive    Boolean   @default(true)
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
 }
 
-enum DiscountType {
-  FIXED
-  PERCENTAGE
-}
-
-enum VariationType{
-  COLOR
+enum Variation {
   SIZE
-  MATERIAL
+  COLOR
+  COUNTRY
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NOT_ATTRIBUTED
+} 
+
+enum Review_Status{
+  PENDING
+  REJECTED
+  APPROVED
 }

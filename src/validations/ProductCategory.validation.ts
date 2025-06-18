@@ -6,10 +6,9 @@ import HTTP_STATUS from "../utils/http.utils";
 /**
  * Create product validation
  */
-export const createProductValidation = [
-    body("name").notEmpty().withMessage("name is required"),
-    body("price").notEmpty().isNumeric().withMessage("price is required"),
-    body("slug").notEmpty().optional().trim().withMessage("slug should not be empty"),
+export const createProductCategoryValidation = [
+    body("productId").notEmpty().withMessage("product is required"),
+    body("categoryId").notEmpty().isNumeric().withMessage("category is required"),
     (req:Request, res:Response, next:NextFunction) =>{
         const error = validationResult(req);
         if(!error.isEmpty()){

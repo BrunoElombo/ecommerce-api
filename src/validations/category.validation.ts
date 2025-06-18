@@ -4,9 +4,9 @@ import HTTP_STATUS from "../utils/http.utils";
 
 
 /**
- * Create product validation
+ * Create category validation
  */
-export const createProductValidation = [
+export const CreateCategoryValidation = [
     body("name").notEmpty().withMessage("name is required"),
     body("price").notEmpty().isNumeric().withMessage("price is required"),
     body("slug").notEmpty().optional().trim().withMessage("slug should not be empty"),

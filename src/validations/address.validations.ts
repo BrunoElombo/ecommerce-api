@@ -1,46 +1,32 @@
-import { NextFunction, Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import HTTP_STATUS from '../utils/http.utils';
-import { apiResponse } from '../utils/apiResponse';
+import { NextFunction, Request, Response } from "express";
+import { body, validationResult } from "express-validator";
+import HTTP_STATUS from "../utils/http.utils";
 
 
-export const createAddressValidation = [
-    body("userId").notEmpty().isUUID().withMessage("userId is required"),
-    body("line1").notEmpty().withMessage("line1 is required"),
-    body("line2").optional().notEmpty().withMessage("line2 should not be left empty"),
+/**
+ * Create address validation
+ */
+export const CreateAddressValidation = [
+    body("userId").notEmpty().withMessage("userId is required"),
+    body("street").notEmpty().withMessage("street is required"),
     body("city").notEmpty().withMessage("city is required"),
     body("state").notEmpty().withMessage("state is required"),
     body("postalCode").notEmpty().withMessage("postalCode is required"),
+    body("line1").notEmpty().withMessage("line1 is required"),
+    body("line2").notEmpty().optional().withMessage("line2 is required"),
     body("country").notEmpty().withMessage("country is required"),
+    body("countryCode").notEmpty().withMessage("countryCode is required"),
     (req:Request, res:Response, next:NextFunction) =>{
-        let errors = validationResult(req);
-        if(errors.array()){
+        const error = validationResult(req);
+        if(!error.isEmpty()){
             res
             .status(HTTP_STATUS.BAD_REQUEST.statusCode)
-            .send({error:true, errors});
+            .send({
+                "error": true,
+                "errors": error.array()
+            });
             return;
-        }
-        next();
-    }
-]
-
-
-export const updateAddressValidation = [
-    body("userId").optional().notEmpty().isUUID().withMessage("userId is required"),
-    body("line1").optional().notEmpty().withMessage("line1 is required"),
-    body("line2").optional().notEmpty().withMessage("line2 should not be left empty"),
-    body("city").optional().notEmpty().withMessage("city is required"),
-    body("state").optional().notEmpty().withMessage("state is required"),
-    body("postalCode").optional().notEmpty().withMessage("postalCode is required"),
-    body("country").optional().notEmpty().withMessage("country is required"),
-    (req:Request, res:Response, next:NextFunction) =>{
-        let errors = validationResult(req);
-        if(errors.array()){
-            res
-            .status(HTTP_STATUS.BAD_REQUEST.statusCode)
-            .send({error:true, errors});
-            return;
-        }
+        } 
         next();
     }
 ]

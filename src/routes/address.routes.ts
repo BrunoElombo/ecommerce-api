@@ -1,14 +1,13 @@
-import { Router, RequestHandler } from "express";
-import { createAddressController, deleteOwnAddressController, getAllOwnAddressController, updateOwnAddressController } from "../controllers/address.controller";
-import { createAddressValidation, updateAddressValidation } from "../validations/address.validations";
+import { CreateAddressController, DeleteAddressController, GetAddressByIdController, GetAllAddressesController, UpdateAddressController } from '../controllers/address.controller';
+import { CreateAddressValidation } from '../validations/address.validations';
+import { Router } from "express";
 
-const routes = Router();
+const route = Router();
 
+route.get('/', GetAllAddressesController)
+route.post('/', CreateAddressValidation, CreateAddressController)
+route.get('/:id', GetAddressByIdController)
+route.patch('/:id', UpdateAddressController)
+route.delete('/:id', DeleteAddressController)
 
-routes.get("/", getAllOwnAddressController as RequestHandler);
-routes.post("/", createAddressValidation, createAddressController as RequestHandler);
-routes.patch("/:id", updateAddressValidation, updateOwnAddressController as RequestHandler);
-routes.delete("/:id", deleteOwnAddressController as RequestHandler);
-
-
-export default routes;
+export default route;

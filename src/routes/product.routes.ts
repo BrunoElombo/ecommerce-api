@@ -1,16 +1,16 @@
-import { Router, RequestHandler } from "express";
-import { createProductController, deleteProductController, getAllProductsController, getProductByIdController, updateProductController } from "../controllers/product.controllers";
-import { createProductValidation, updateProductValidation } from '../validations/product.validations';
+import { RequestHandler, Router } from "express";
+import { CreateProductController, DeleteProductController, GetAllProductsController, GetProductBySlugController, UpdateProductController } from "../controllers/product.controller";
+import { createProductValidation } from "../validations/product.validations";
+
+const route = Router();
 
 
-const routes = Router();
+route.get('/', GetAllProductsController as RequestHandler);
+route.post('/', createProductValidation, CreateProductController as RequestHandler);
+route.get('/:slug', GetProductBySlugController as RequestHandler);
+route.patch("/:slug", UpdateProductController as RequestHandler);
+route.delete("/:id", DeleteProductController as RequestHandler);
+// route.get("/filter", FilterProductsController as RequestHandler);
 
 
-routes.get("/", getAllProductsController as RequestHandler);
-routes.get("/:id", getProductByIdController as RequestHandler);
-routes.post("/", createProductValidation, createProductController as RequestHandler);
-routes.patch("/:id", updateProductValidation, updateProductController as RequestHandler);
-routes.delete("/:id", deleteProductController as RequestHandler);
-
-
-export default routes;
+export default route;
