@@ -60,7 +60,6 @@ model Product {
   description String?        @db.LongText
   shortDescription      String?
   productCategory       ProductCategory[]
-  orders      Order[]
   images      Image[]
   ratings     Rating[]
   reviews     Review[]
@@ -72,8 +71,8 @@ model Product {
 
 model Order {
   id      String      @id       @default(uuid())
-  code    String      
-  products            Product[]
+  code    String      @unique
+  cartItems            CartItem[]
   userId  String
   status  OrderStatus @default(PENDING)
   addressId           String
@@ -105,20 +104,22 @@ model ProductVariation {
 }
 
 model CartItem {
-  id        String      @id     @default(uuid())
-  sku       String
+  id            String      @id     @default(uuid())
+  sku           String
   productId     String
   product       Product         @relation(references: [id], fields: [productId])
   variationId   String
   variation     ProductVariation      @relation(references: [id], fields: [variationId])
-  userId   String
-  user     User      @relation(references: [id], fields: [userId])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId        String
+  user          User      @relation(references: [id], fields: [userId])
+  orderId       String?
+  order         Order?  @relation(references: [id], fields: [orderId])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model ProductCategory {
-  id      String        @id       @default(uuid())
+  id            String        @id       @default(uuid())
   productId     String
   product       Product     @relation(references: [id], fields: [productId], onDelete: Cascade)
   categoryId    String

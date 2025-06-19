@@ -66,7 +66,7 @@ export const GetAllReviewsService = async () =>{
  */
 export const UpdateReviewService = async (id:string, body:any)=>{
     try {
-        let review = await prisma.address.update({
+        let review = await prisma.review.update({
             where:{id}, 
             data:{...body}
         });
@@ -80,8 +80,8 @@ export const UpdateReviewService = async (id:string, body:any)=>{
 
 /**
  * Delete address
- * @param id 
- * @returns 
+ * @param id string
+ * @returns review
  */
 export const DeleteReviewService = async (id:string) =>{
     try {
@@ -95,3 +95,50 @@ export const DeleteReviewService = async (id:string) =>{
         return apiResponse(true, [{msg:`${error}`, field:"server"}])
     }
 }
+
+
+/**
+ * Approve a review
+ * @param id string
+ * @returns review
+ */
+export const ApproveReviewService = async (id:string)=>{
+    try {
+        let review= await prisma.review.update({
+            where:{id},
+            data:{
+                status: "APPROVED"
+            }
+        });
+
+        if(review) return apiResponse(true, [{msg:"review does not exist", field:"id"}]);
+        return apiResponse(false, undefined, {});
+    } catch (error) {
+        console.log(error)
+        return apiResponse(true, [{msg:`${error}`, field:"server"}])
+    }
+}
+
+
+/**
+ * Approve a review
+ * @param id string
+ * @returns review
+ */
+export const RejectReviewService = async (id:string)=>{
+    try {
+        let review= await prisma.review.update({
+            where:{id},
+            data:{
+                status: "REJECTED"
+            }
+        });
+
+        if(review) return apiResponse(true, [{msg:"review does not exist", field:"id"}]);
+        return apiResponse(false, undefined, {});
+    } catch (error) {
+        console.log(error)
+        return apiResponse(true, [{msg:`${error}`, field:"server"}])
+    }
+}
+

@@ -12,6 +12,9 @@ import ProductVariations from './routes/productVariations.routes';
 import AddressRoutes from './routes/address.routes';
 import PaymentRoutes from './routes/payment.routes';
 import ReviewRoutes from './routes/review.routes';
+import RatingRoutes from './routes/rating.routes';
+
+
 import HTTP_STATUS from './utils/http.utils';
 
 // Middlewares
@@ -34,6 +37,7 @@ app.use("/api/v1/product-categories", ProductCategories);
 app.use("/api/v1/product-variations", ProductVariations);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/reviews", ReviewRoutes);
+app.use("/api/v1/ratings", RatingRoutes);
 
 
 export default app;

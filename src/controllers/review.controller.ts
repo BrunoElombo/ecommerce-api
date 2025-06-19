@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import HTTP_STATUS from "../utils/http.utils";
 import { apiResponse } from "../utils/errors.utils";
-import { CreateReviewService, DeleteReviewService, GetAllReviewsService, GetReviewByProductIdService, UpdateReviewService } from "../services/review.service";
+import { ApproveReviewService, CreateReviewService, DeleteReviewService, GetAllReviewsService, GetReviewByProductIdService, RejectReviewService, UpdateReviewService } from "../services/review.service";
 
 
 export const CreateReviewController = async (req:Request, res:Response) =>{
@@ -72,6 +72,37 @@ export const DeleteReviewController = async (req:Request, res:Response) => {
     try {
         let {id} = req.params;
         let review = await DeleteReviewService(id);
+        res
+        .status(review.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.NO_CONTENT.statusCode)
+        .send(review);
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+export const ApproveReviewController = async (req:Request, res:Response) =>{
+    try {
+        let {id} = req.params;
+        let review = await ApproveReviewService(id);
+        res
+        .status(review.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.NO_CONTENT.statusCode)
+        .send(review);
+    } catch (error) {
+        console.log(error);
+        res
+        .status(HTTP_STATUS.SERVEUR_ERROR.statusCode)
+        .send(apiResponse(true, [{msg:`${error}`, field:"server"}]))
+    }
+}
+
+
+export const RejectReviewController = async (req:Request, res:Response) =>{
+    try {
+        let {id} = req.params;
+        let review = await RejectReviewService(id);
         res
         .status(review.error ? HTTP_STATUS.NOT_FOUND.statusCode : HTTP_STATUS.NO_CONTENT.statusCode)
         .send(review);

@@ -51,3 +51,9 @@ export interface Review{
     productId:string,
     content:string
 }
+
+export interface Rating{
+    userId:string,
+    productId:string,
+    rate:number
+}
