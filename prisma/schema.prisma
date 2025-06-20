@@ -108,8 +108,7 @@ model CartItem {
   sku           String
   productId     String
   product       Product         @relation(references: [id], fields: [productId])
-  variationId   String
-  variation     ProductVariation      @relation(references: [id], fields: [variationId])
+  variation     ProductVariation[]
   userId        String
   user          User      @relation(references: [id], fields: [userId])
   orderId       String?
