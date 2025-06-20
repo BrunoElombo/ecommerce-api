@@ -57,3 +57,12 @@ export interface Rating{
     productId:string,
     rate:number
 }
+
+export interface CartItem {
+    sku:string,
+    productId:string,
+    product:Product
+    variations:string[],
+    userId:string,
+    orderId?:string,
+  }

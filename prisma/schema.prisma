@@ -105,10 +105,11 @@ model ProductVariation {
 
 model CartItem {
   id            String      @id     @default(uuid())
-  sku           String
+  sku           String      @unique
   productId     String
   product       Product         @relation(references: [id], fields: [productId])
-  variation     ProductVariation[]
+  variationId   String?
+  variation     ProductVariation?  @relation(fields: [variationId], references: [id], onDelete: Cascade)
   userId        String
   user          User      @relation(references: [id], fields: [userId])
   orderId       String?
