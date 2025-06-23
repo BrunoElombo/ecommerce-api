@@ -63,6 +63,7 @@ export interface CartItem {
     productId:string,
     product:Product
     variations:string[],
+    qty:number,
     userId:string,
     orderId?:string,
   }

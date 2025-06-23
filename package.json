@@ -43,7 +43,7 @@
     "passport-jwt": "^4.0.1",
     "passport-microsoft": "^2.1.0",
     "redis": "^4.7.0",
-    "stripe": "^18.0.0",
+    "stripe": "^18.2.1",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5"
   },

@@ -105,7 +105,8 @@ model ProductVariation {
 
 model CartItem {
   id            String      @id     @default(uuid())
-  sku           String      @unique
+  sku           String
+  qty           Decimal         @default(1)
   productId     String
   product       Product         @relation(references: [id], fields: [productId])
   variationId   String?

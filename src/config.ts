@@ -10,6 +10,9 @@ export const prisma = new PrismaClient();
 export const SALT = 15;
 export const JWT_SECRET = process.env.JWT_SECRET || "SUPER-SECRET";
 export const ADDRESS = process.env.ADDRESS;
+export const BASE_URL = process.env.BASE_URL || "";
+
+
 
 
 

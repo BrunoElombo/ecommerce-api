@@ -42,7 +42,6 @@ export const GetProductBySlugService = async (slug:string) =>{
                 variations:true,
                 reviews:true,
                 ratings:true,
-                orders:true,
                 images:true
             }
         });

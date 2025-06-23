@@ -5,14 +5,18 @@ import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+
 import ProductRoutes from "./routes/product.routes";
 import CategoryRoutes from './routes/category.routes';
+import CartItemRoutes from './routes/cartItem.routes';
 import ProductCategories from './routes/productCategories.routes';
 import ProductVariations from './routes/productVariations.routes';
 import AddressRoutes from './routes/address.routes';
 import PaymentRoutes from './routes/payment.routes';
 import ReviewRoutes from './routes/review.routes';
 import RatingRoutes from './routes/rating.routes';
+
+const stripe = require('stripe')('YOUR_STRIPE_SECRET_KEY'); // Replace with your secret key
 
 
 import HTTP_STATUS from './utils/http.utils';
@@ -38,6 +42,7 @@ app.use("/api/v1/product-variations", ProductVariations);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/reviews", ReviewRoutes);
 app.use("/api/v1/ratings", RatingRoutes);
+app.use("/api/v1/cart-items", CartItemRoutes);
 
 
 export default app;

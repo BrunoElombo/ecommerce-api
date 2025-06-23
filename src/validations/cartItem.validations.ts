@@ -9,6 +9,7 @@ import HTTP_STATUS from "../utils/http.utils";
 export const CreateCartItemValidation = [
     body("productId").notEmpty().withMessage("productId is required"),
     body("userId").notEmpty().withMessage("userId is required"),
+    body("qty").notEmpty().withMessage("quantity is required"),
     (req:Request, res:Response, next:NextFunction) =>{
         const error = validationResult(req);
         if(!error.isEmpty()){

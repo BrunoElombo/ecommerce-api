@@ -10,7 +10,7 @@ import { apiResponse } from "../utils/errors.utils";
  */
 export const CreateCartItemService = async (body:CartItem)=>{
     try {
-        let {userId, productId, variations} = body;
+        let {userId, productId, variations, qty} = body;
 
         // Check if the user exist
         let userExist = await prisma.user.findFirst({
@@ -30,7 +30,7 @@ export const CreateCartItemService = async (body:CartItem)=>{
 
         // Check if the variations exist
         let errs: any[] = [];
-        if(variations.length > 0){
+        if(variations?.length > 0){
             variations.map(async variation =>{
                 let varn = await prisma.productVariation.findFirst({
                     where:{id: variation}
@@ -47,11 +47,11 @@ export const CreateCartItemService = async (body:CartItem)=>{
         let sku = `${productId}-${userId}-${new Date()}`
 
         // Handle cartItem with variations
-        if(variations.length > 0){
+        if(variations?.length > 0){
             let cartItems= await variations.map(async varn => {
                 let cartItem = await prisma.cartItem.create({
                     data:{
-                        productId, userId, sku, variationId:varn
+                        productId, userId, sku, variationId:varn, qty
                     }
                 });
 
@@ -61,7 +61,7 @@ export const CreateCartItemService = async (body:CartItem)=>{
         }else{
             let cartItem = await prisma.cartItem.create({
                 data:{
-                    productId, userId, sku
+                    productId, userId, sku, qty
                 }
             });
             return apiResponse(false, undefined, cartItem);
@@ -75,31 +75,33 @@ export const CreateCartItemService = async (body:CartItem)=>{
 
 
 /**
- * Get an payment from id
+ * Get an cart item from id
  * @param id 
- * @returns Payment
+ * @returns CartItem
  */
-export const GetPaymentByIdService = async (id:string) =>{
+export const GetCartItemByIdService = async (id:string) =>{
     try {
-        let payment = await prisma.payment.findFirst({
+        let cartItem = await prisma.cartItem.findFirst({
             where:{id}
         });
-        return apiResponse(false, undefined, payment);
+        return apiResponse(false, undefined, cartItem);
     } catch (error) {
         console.log(error);
         return apiResponse(true, [{msg:`${error}`, field:"server"}])
     }
 }
 
-
 /**
- * Get all payments
- * @returns Payments[]
+ * Find cart item from sku
+ * @param sku 
+ * @returns CartItems
  */
-export const GetAllPaymentsService = async () =>{
+export const GetCartItemsBySKUService = async (sku:string) =>{
     try {
-        let payments = await prisma.payment.findMany();
-        return apiResponse(false, undefined, payments);
+        let cartItems = await prisma.cartItem.findMany({
+            where:{sku}
+        });
+        return apiResponse(false, undefined, cartItems);
     } catch (error) {
         console.log(error);
         return apiResponse(true, [{msg:`${error}`, field:"server"}])
@@ -107,20 +109,63 @@ export const GetAllPaymentsService = async () =>{
 }
 
 
+/**
+ * Get all cartItems
+ * @returns CartItems[]
+ */
+export const GetOwnCartItemsService = async (userId: string) => {
+    try {
+        // Fetch all cart items for the user, including product and variation
+        const cartItems = await prisma.cartItem.findMany({
+            where: { userId },
+            include: {
+                product: true,
+                variation: true,
+            },
+        });
+
+        // Group by sku
+        const grouped = cartItems.reduce((acc: any, item) => {
+            if (!acc[item.sku]) {
+                acc[item.sku] = {
+                    sku: item.sku,
+                    qty: item.qty,
+                    product: item.product,
+                    variations: [],
+                    createdAt: item.createdAt,
+                };
+            }
+            if (item.variation) {
+                acc[item.sku].variations.push(item.variation);
+            }
+            return acc;
+        }, {});
+
+        
+        const result = Object.values(grouped);
+
+        return apiResponse(false, undefined, result);
+    } catch (error) {
+        console.log(error);
+        return apiResponse(true, [{ msg: `${error}`, field: "server" }]);
+    }
+}
+
+
 
 /**
- * Update payment
+ * Update cartItem
  * @param id 
  * @param body 
- * @returns Payment
+ * @returns CartItem
  */
-export const UpdatePaymentService = async (id:string, body:any)=>{
+export const UpdateCartItemService = async (id:string, body:any)=>{
     try {
-        let payment = await prisma.payment.update({
+        let cartItem = await prisma.cartItem.update({
             where:{id}, 
             data:{...body}
         });
-        return apiResponse(false, undefined, payment);
+        return apiResponse(false, undefined, cartItem);
     } catch (error) {
         console.log(error);
         return apiResponse(true, [{msg:`${error}`, field:"server"}])
@@ -129,13 +174,13 @@ export const UpdatePaymentService = async (id:string, body:any)=>{
 
 
 /**
- * Delete payment
+ * Delete cartItem
  * @param id 
  * @returns 
  */
-export const DeletePaymentService = async (id:string) =>{
+export const DeleteCartItemService = async (id:string) =>{
     try {
-        let payment = await prisma.payment.delete({
+        let cartItem = await prisma.payment.delete({
             where:{id}
         });
 

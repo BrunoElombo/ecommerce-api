@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `cartitem` ADD COLUMN `qty` DECIMAL(65, 30) NOT NULL DEFAULT 1;
